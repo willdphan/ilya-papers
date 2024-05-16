@@ -1,0 +1,24 @@
+# Bytecode
+__pycache__/
+*.pyc
+
+# Virtual environment
+myenv/
+
+# Distribution / Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Setuptools specific
+.eggs/
+
+# Configuration files
+.env
+.env.local
+
+# Logs
+*.log
+
+# Database
+*.db
