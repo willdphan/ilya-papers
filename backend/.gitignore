@@ -22,3 +22,7 @@ dist/
 
 # Database
 *.db
+
+# ignore papers
+papers/
+
