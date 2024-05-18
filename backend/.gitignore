@@ -26,3 +26,6 @@ dist/
 # ignore papers
 papers/
 
+# ignore vscode directory
+.vscode/
+
