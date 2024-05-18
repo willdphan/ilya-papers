@@ -1,4 +1,4 @@
-#!/Users/alexanderphan_1/Developer/ilya-papers/backend/venv/bin/python3.11
+#!/Users/alexanderphan_1/Developer/ilya-papers/backend/venv/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys

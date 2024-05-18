@@ -1,0 +1,478 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><script type="text/javascript" async="" src="https://www.googletagmanager.com/gtag/js?id=G-1WDK1YRZ25&amp;cx=c&amp;_slc=1"></script><script type="text/javascript" async="" src="https://www.google-analytics.com/plugins/ua/linkid.js"></script>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Understanding LSTM Networks -- colah's blog</title>
+
+        <link rel="stylesheet" href="../../fonts/Serif/cmun-serif.css">
+        <link rel="stylesheet" href="../../fonts/Serif-Slanted/cmun-serif-slanted.css">
+
+        <!--BOOTSTRAP-->
+        <link href="../../bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <!--mobile first-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!--removed html from url but still is html-->
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <!--font awesome-->
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+        <!--fonts: allan & cardo-->
+        <link href="http://fonts.googleapis.com/css?family=Droid+Serif" rel="stylesheet" type="text/css">
+        <link href="http://fonts.googleapis.com/css?family=Droid+Sans" rel="stylesheet" type="text/css">
+
+        <link href="../../css/sticky-footer-navbar.css" rel="stylesheet">
+
+        <link href="../../css/default.css" rel="stylesheet">
+
+        <link href="../../comments/inlineDisqussions.css" rel="stylesheet">
+
+        <!--Highlight-->
+        <link href="../../highlight/styles/github.css" rel="stylesheet">
+
+        <link href="../../favicon.ico" rel="shortcut icon">
+
+        <!--<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>-->
+        <script async="" src="//www.google-analytics.com/analytics.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML" id=""></script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-49811703-1', 'colah.github.io');
+  ga('require', 'linkid', 'linkid.js');
+  ga('require', 'displayfeatures');
+  ga('send', 'pageview');
+
+</script>
+    <script type="text/javascript" async="" src="http://disqus.com/forums/lambdaoinks/embed.js"></script><script async="" src="http://disqus.com/forums/lambdaoinks/count.js"></script><script type="text/javascript" async="" src="//colah.disqus.com/count.js"></script><script type="text/javascript" async="" src="//colah.disqus.com/count.js"></script><script src="//colah.disqus.com/count-data.js?1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-0&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-1&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-10&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-11&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-12&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-13&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-14&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-15&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-16&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-17"></script><script src="//colah.disqus.com/count-data.js?1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-18&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-19&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-2&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-20&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-21&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-22&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-23&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-24&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-25&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-26"></script><script src="//colah.disqus.com/count-data.js?1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-27&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-28&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-29&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-3&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-30&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-31&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-32&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-33&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-34&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-35"></script><script src="//colah.disqus.com/count-data.js?1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-36&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-37&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-38&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-39&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-4&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-40&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-41&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-42&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-43&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-44"></script><script src="//colah.disqus.com/count-data.js?1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-45&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-46&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-47&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-48&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-49&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-5&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-50&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-51&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-52&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-53"></script><script src="//colah.disqus.com/count-data.js?1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-54&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-55&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-56&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-57&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-58&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-59&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-6&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-60&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-61&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-62"></script><script src="//colah.disqus.com/count-data.js?1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-63&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-64&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-65&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-66&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-67&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-68&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-69&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-7&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-8&amp;1=%2Fposts%2F2015-08-Understanding-LSTMs%2Fdisqussion-9"></script><script src="//colah.disqus.com/count-data.js?2=https%3A%2F%2Fcolah.github.io%2Fposts%2F2015-08-Understanding-LSTMs%2F"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1px; bottom: 2px; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/jax/output/HTML-CSS/jax.js?V=2.7.1"></script></head>
+
+    <body style=""><div id="MathJax_Message" style="">Loading [MathJax]/jax/output/HTML-CSS/jax.js</div>
+        <div id="wrap">
+            <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+                <div class="container">
+                    <!--Toggle header for mobile-->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand active" href="../../" style="font-size:20px;">colah's blog</a>
+                    </div>
+                    <!--normal header-->
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="../../"><span class="glyphicon glyphicon-pencil"></span>  Blog</a></li>
+                            <li><a href="../../about.html"><span class="glyphicon glyphicon-user"></span>  About</a></li>
+                            <li><a href="../../contact.html"><span class="glyphicon glyphicon-envelope"></span>  Contact</a></li>
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div>
+            </nav>
+
+
+            <div id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h1>Understanding LSTM Networks</h1>
+                            <div class="info">
+    <p style="font-family:CMSS; font-size:120%" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-0">Posted on August 27, 2015</p>
+
+    <!--
+        by colah
+    -->
+</div>
+<br>
+
+<h2 id="recurrent-neural-networks">Recurrent Neural Networks</h2>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-1">Humans don’t start their thinking from scratch every second. As you read this essay, you understand each word based on your understanding of previous words. You don’t throw everything away and start thinking from scratch again. Your thoughts have persistence.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-2">Traditional neural networks can’t do this, and it seems like a major shortcoming. For example, imagine you want to classify what kind of event is happening at every point in a movie. It’s unclear how a traditional neural network could use its reasoning about previous events in the film to inform later ones.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-3">Recurrent neural networks address this issue. They are networks with loops in them, allowing information to persist.</p>
+<div style="width:11.8%; margin-left:auto; margin-right:auto; margin-bottom:5px; margin-top:17px;">
+<img src="img/RNN-rolled.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-50">
+</div>
+<div class="caption" style="margin-bottom:20px;">
+<strong>Recurrent Neural Networks have loops.</strong>
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-4">In the above diagram, a chunk of neural network, <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-1"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-2">A</span></span></span><script type="math/tex" id="MathJax-Element-1">A</script></span>, looks at some input <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-3"><span class="MJXp-msubsup" id="MJXp-Span-4"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-5" style="margin-right: 0.05em;">x</span><span class="MJXp-mi MJXp-italic MJXp-script" id="MJXp-Span-6" style="vertical-align: -0.4em;">t</span></span></span></span><script type="math/tex" id="MathJax-Element-2">x_t</script></span> and outputs a value <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-7"><span class="MJXp-msubsup" id="MJXp-Span-8"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-9" style="margin-right: 0.05em;">h</span><span class="MJXp-mi MJXp-italic MJXp-script" id="MJXp-Span-10" style="vertical-align: -0.4em;">t</span></span></span></span><script type="math/tex" id="MathJax-Element-3">h_t</script></span>. A loop allows information to be passed from one step of the network to the next.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-5">These loops make recurrent neural networks seem kind of mysterious. However, if you think a bit more, it turns out that they aren’t all that different than a normal neural network. A recurrent neural network can be thought of as multiple copies of the same network, each passing a message to a successor. Consider what happens if we unroll the loop:</p>
+<div style="width:70%; margin-left:auto; margin-right:auto; margin-bottom:5px; margin-top:17px;">
+<img src="img/RNN-unrolled.png" alt="An unrolled recurrent neural network." data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-51">
+</div>
+<div class="caption" style="margin-bottom:20px;">
+<strong>An unrolled recurrent neural network.</strong>
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-6">This chain-like nature reveals that recurrent neural networks are intimately related to sequences and lists. They’re the natural architecture of neural network to use for such data.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-7">And they certainly are used! In the last few years, there have been incredible success applying RNNs to a variety of problems: speech recognition, language modeling, translation, image captioning… The list goes on. I’ll leave discussion of the amazing feats one can achieve with RNNs to Andrej Karpathy’s excellent blog post, <a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">The Unreasonable Effectiveness of Recurrent Neural Networks</a>. But they really are pretty amazing.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-8">Essential to these successes is the use of “LSTMs,” a very special kind of recurrent neural network which works, for many tasks, much much better than the standard version. Almost all exciting results based on recurrent neural networks are achieved with them. It’s these LSTMs that this essay will explore.</p>
+<h2 id="the-problem-of-long-term-dependencies">The Problem of Long-Term Dependencies</h2>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-9">One of the appeals of RNNs is the idea that they might be able to connect previous information to the present task, such as using previous video frames might inform the understanding of the present frame. If RNNs could do this, they’d be extremely useful. But can they? It depends.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-10">Sometimes, we only need to look at recent information to perform the present task. For example, consider a language model trying to predict the next word based on the previous ones. If we are trying to predict the last word in “the clouds are in the <em>sky</em>,” we don’t need any further context – it’s pretty obvious the next word is going to be sky. In such cases, where the gap between the relevant information and the place that it’s needed is small, RNNs can learn to use the past information.</p>
+<div style="width:50%; margin-left:auto; margin-right:auto; margin-bottom:17px; margin-top:17px;">
+<img src="img/RNN-shorttermdepdencies.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-52">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-11">But there are also cases where we need more context. Consider trying to predict the last word in the text “I grew up in France… I speak fluent <em>French</em>.” Recent information suggests that the next word is probably the name of a language, but if we want to narrow down which language, we need the context of France, from further back. It’s entirely possible for the gap between the relevant information and the point where it is needed to become very large.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-12">Unfortunately, as that gap grows, RNNs become unable to learn to connect the information.</p>
+<div style="width:65.2%; margin-left:auto; margin-right:auto; margin-bottom:17px; margin-top:17px;">
+<img src="img/RNN-longtermdependencies.png" alt="Neural networks struggle with long term dependencies." data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-53">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-13">In theory, RNNs are absolutely capable of handling such “long-term dependencies.” A human could carefully pick parameters for them to solve toy problems of this form. Sadly, in practice, RNNs don’t seem to be able to learn them. The problem was explored in depth by <a href="http://people.idsia.ch/~juergen/SeppHochreiter1991ThesisAdvisorSchmidhuber.pdf">Hochreiter (1991) [German]</a> and <a href="http://www-dsi.ing.unifi.it/~paolo/ps/tnn-94-gradient.pdf">Bengio, et al. (1994)</a>, who found some pretty fundamental reasons why it might be difficult.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-14">Thankfully, LSTMs don’t have this problem!</p>
+<h2 id="lstm-networks">LSTM Networks</h2>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-15">Long Short Term Memory networks – usually just called “LSTMs” – are a special kind of RNN, capable of learning long-term dependencies. They were introduced by <a href="http://www.bioinf.jku.at/publications/older/2604.pdf">Hochreiter &amp; Schmidhuber (1997)</a>, and were refined and popularized by many people in following work.<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> They work tremendously well on a large variety of problems, and are now widely used.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-16">LSTMs are explicitly designed to avoid the long-term dependency problem. Remembering information for long periods of time is practically their default behavior, not something they struggle to learn!</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-17">All recurrent neural networks have the form of a chain of repeating modules of neural network. In standard RNNs, this repeating module will have a very simple structure, such as a single tanh layer.</p>
+<div style="width:90%; margin-left:auto; margin-right:auto; margin-bottom:15px; margin-top:15px;">
+<img src="img/LSTM3-SimpleRNN.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-54">
+<div class="caption" style="margin-bottom:10px;">
+<strong>The repeating module in a standard RNN contains a single layer.</strong>
+</div>
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-18">LSTMs also have this chain like structure, but the repeating module has a different structure. Instead of having a single neural network layer, there are four, interacting in a very special way.</p>
+<div style="width:90%; margin-left:auto; margin-right:auto; margin-bottom:15px; margin-top:15px;">
+<img src="img/LSTM3-chain.png" alt="A LSTM neural network." data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-55">
+<div class="caption" style="margin-bottom:10px;">
+<strong>The repeating module in an LSTM contains four interacting layers.</strong>
+</div>
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-19">Don’t worry about the details of what’s going on. We’ll walk through the LSTM diagram step by step later. For now, let’s just try to get comfortable with the notation we’ll be using.</p>
+<div style="width:70%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM2-notation.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-56">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-20">In the above diagram, each line carries an entire vector, from the output of one node to the inputs of others. The pink circles represent pointwise operations, like vector addition, while the yellow boxes are learned neural network layers. Lines merging denote concatenation, while a line forking denote its content being copied and the copies going to different locations. <!--
+
+To be a bit more explicit, we can split up each line into lines carrying individual scalar values:
+
+<div style="width:50%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM-vector.png" alt="">
+</div>
+--></p>
+<h2 id="the-core-idea-behind-lstms">The Core Idea Behind LSTMs</h2>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-21">The key to LSTMs is the cell state, the horizontal line running through the top of the diagram.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-22">The cell state is kind of like a conveyor belt. It runs straight down the entire chain, with only some minor linear interactions. It’s very easy for information to just flow along it unchanged.</p>
+<div style="width:90%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM3-C-line.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-57">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-23">The LSTM does have the ability to remove or add information to the cell state, carefully regulated by structures called gates.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-24">Gates are a way to optionally let information through. They are composed out of a sigmoid neural net layer and a pointwise multiplication operation.</p>
+<div style="width:12%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM3-gate.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-58">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-25">The sigmoid layer outputs numbers between zero and one, describing how much of each component should be let through. A value of zero means “let nothing through,” while a value of one means “let everything through!”</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-26">An LSTM has three of these gates, to protect and control the cell state.</p>
+<h2 id="step-by-step-lstm-walk-through">Step-by-Step LSTM Walk Through</h2>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-27">The first step in our LSTM is to decide what information we’re going to throw away from the cell state. This decision is made by a sigmoid layer called the “forget gate layer.” It looks at <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-11"><span class="MJXp-msubsup" id="MJXp-Span-12"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-13" style="margin-right: 0.05em;">h</span><span class="MJXp-mrow MJXp-script" id="MJXp-Span-14" style="vertical-align: -0.4em;"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-15">t</span><span class="MJXp-mo" id="MJXp-Span-16">−</span><span class="MJXp-mn" id="MJXp-Span-17">1</span></span></span></span></span><script type="math/tex" id="MathJax-Element-4">h_{t-1}</script></span> and <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-18"><span class="MJXp-msubsup" id="MJXp-Span-19"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-20" style="margin-right: 0.05em;">x</span><span class="MJXp-mi MJXp-italic MJXp-script" id="MJXp-Span-21" style="vertical-align: -0.4em;">t</span></span></span></span><script type="math/tex" id="MathJax-Element-5">x_t</script></span>, and outputs a number between <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-22"><span class="MJXp-mn" id="MJXp-Span-23">0</span></span></span><script type="math/tex" id="MathJax-Element-6">0</script></span> and <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-24"><span class="MJXp-mn" id="MJXp-Span-25">1</span></span></span><script type="math/tex" id="MathJax-Element-7">1</script></span> for each number in the cell state <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-26"><span class="MJXp-msubsup" id="MJXp-Span-27"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-28" style="margin-right: 0.05em;">C</span><span class="MJXp-mrow MJXp-script" id="MJXp-Span-29" style="vertical-align: -0.4em;"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-30">t</span><span class="MJXp-mo" id="MJXp-Span-31">−</span><span class="MJXp-mn" id="MJXp-Span-32">1</span></span></span></span></span><script type="math/tex" id="MathJax-Element-8">C_{t-1}</script></span>. A <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-33"><span class="MJXp-mn" id="MJXp-Span-34">1</span></span></span><script type="math/tex" id="MathJax-Element-9">1</script></span> represents “completely keep this” while a <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-35"><span class="MJXp-mn" id="MJXp-Span-36">0</span></span></span><script type="math/tex" id="MathJax-Element-10">0</script></span> represents “completely get rid of this.”</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-28">Let’s go back to our example of a language model trying to predict the next word based on all the previous ones. In such a problem, the cell state might include the gender of the present subject, so that the correct pronouns can be used. When we see a new subject, we want to forget the gender of the old subject.</p>
+<div style="width:90%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM3-focus-f.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-59">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-29">The next step is to decide what new information we’re going to store in the cell state. This has two parts. First, a sigmoid layer called the “input gate layer” decides which values we’ll update. Next, a tanh layer creates a vector of new candidate values, <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-37"><span class="MJXp-msubsup" id="MJXp-Span-38"><span class="MJXp-mrow" id="MJXp-Span-39" style="margin-right: 0.05em;"><span class="MJXp-munderover" id="MJXp-Span-40"><span><span class="MJXp-over"><span class="" style="margin-bottom: -0.92em;"><span class="MJXp-mo" id="MJXp-Span-42" style="margin-left: 0px; margin-right: 0px;">˜</span></span><span class=""><span class="MJXp-mi MJXp-italic" id="MJXp-Span-41">C</span></span></span></span></span></span><span class="MJXp-mi MJXp-italic MJXp-script" id="MJXp-Span-43" style="vertical-align: -0.4em;">t</span></span></span></span><script type="math/tex" id="MathJax-Element-11">\tilde{C}_t</script></span>, that could be added to the state. In the next step, we’ll combine these two to create an update to the state.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-30">In the example of our language model, we’d want to add the gender of the new subject to the cell state, to replace the old one we’re forgetting.</p>
+<div style="width:90%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM3-focus-i.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-60">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-31">It’s now time to update the old cell state, <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-44"><span class="MJXp-msubsup" id="MJXp-Span-45"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-46" style="margin-right: 0.05em;">C</span><span class="MJXp-mrow MJXp-script" id="MJXp-Span-47" style="vertical-align: -0.4em;"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-48">t</span><span class="MJXp-mo" id="MJXp-Span-49">−</span><span class="MJXp-mn" id="MJXp-Span-50">1</span></span></span></span></span><script type="math/tex" id="MathJax-Element-12">C_{t-1}</script></span>, into the new cell state <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-51"><span class="MJXp-msubsup" id="MJXp-Span-52"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-53" style="margin-right: 0.05em;">C</span><span class="MJXp-mi MJXp-italic MJXp-script" id="MJXp-Span-54" style="vertical-align: -0.4em;">t</span></span></span></span><script type="math/tex" id="MathJax-Element-13">C_t</script></span>. The previous steps already decided what to do, we just need to actually do it.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-32">We multiply the old state by <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-55"><span class="MJXp-msubsup" id="MJXp-Span-56"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-57" style="margin-right: 0.05em;">f</span><span class="MJXp-mi MJXp-italic MJXp-script" id="MJXp-Span-58" style="vertical-align: -0.4em;">t</span></span></span></span><script type="math/tex" id="MathJax-Element-14">f_t</script></span>, forgetting the things we decided to forget earlier. Then we add <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-59"><span class="MJXp-msubsup" id="MJXp-Span-60"><span class="MJXp-mi MJXp-italic" id="MJXp-Span-61" style="margin-right: 0.05em;">i</span><span class="MJXp-mi MJXp-italic MJXp-script" id="MJXp-Span-62" style="vertical-align: -0.4em;">t</span></span><span class="MJXp-mo" id="MJXp-Span-63" style="margin-left: 0.267em; margin-right: 0.267em;">∗</span><span class="MJXp-msubsup" id="MJXp-Span-64"><span class="MJXp-mrow" id="MJXp-Span-65" style="margin-right: 0.05em;"><span class="MJXp-munderover" id="MJXp-Span-66"><span><span class="MJXp-over"><span class="" style="margin-bottom: -0.92em;"><span class="MJXp-mo" id="MJXp-Span-68" style="margin-left: 0px; margin-right: 0px;">˜</span></span><span class=""><span class="MJXp-mi MJXp-italic" id="MJXp-Span-67">C</span></span></span></span></span></span><span class="MJXp-mi MJXp-italic MJXp-script" id="MJXp-Span-69" style="vertical-align: -0.4em;">t</span></span></span></span><script type="math/tex" id="MathJax-Element-15">i_t*\tilde{C}_t</script></span>. This is the new candidate values, scaled by how much we decided to update each state value.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-33">In the case of the language model, this is where we’d actually drop the information about the old subject’s gender and add the new information, as we decided in the previous steps.</p>
+<div style="width:90%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM3-focus-C.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-61">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-34">Finally, we need to decide what we’re going to output. This output will be based on our cell state, but will be a filtered version. First, we run a sigmoid layer which decides what parts of the cell state we’re going to output. Then, we put the cell state through <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-70"><span class="MJXp-mi" id="MJXp-Span-71">tanh</span></span></span><script type="math/tex" id="MathJax-Element-16">\tanh</script></span> (to push the values to be between <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-72"><span class="MJXp-mo" id="MJXp-Span-73" style="margin-left: 0em; margin-right: 0.111em;">−</span><span class="MJXp-mn" id="MJXp-Span-74">1</span></span></span><script type="math/tex" id="MathJax-Element-17">-1</script></span> and <span class="math"><span class="MathJax_Preview" style="color: inherit;"><span class="MJXp-math" id="MJXp-Span-75"><span class="MJXp-mn" id="MJXp-Span-76">1</span></span></span><script type="math/tex" id="MathJax-Element-18">1</script></span>) and multiply it by the output of the sigmoid gate, so that we only output the parts we decided to.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-35">For the language model example, since it just saw a subject, it might want to output information relevant to a verb, in case that’s what is coming next. For example, it might output whether the subject is singular or plural, so that we know what form a verb should be conjugated into if that’s what follows next.</p>
+<div style="width:90%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM3-focus-o.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-62">
+</div>
+<h2 id="variants-on-long-short-term-memory">Variants on Long Short Term Memory</h2>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-36">What I’ve described so far is a pretty normal LSTM. But not all LSTMs are the same as the above. In fact, it seems like almost every paper involving LSTMs uses a slightly different version. The differences are minor, but it’s worth mentioning some of them.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-37">One popular LSTM variant, introduced by <a href="ftp://ftp.idsia.ch/pub/juergen/TimeCount-IJCNN2000.pdf">Gers &amp; Schmidhuber (2000)</a>, is adding “peephole connections.” This means that we let the gate layers look at the cell state.</p>
+<div style="width:90%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM3-var-peepholes.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-63">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-38">The above diagram adds peepholes to all the gates, but many papers will give some peepholes and not others.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-39">Another variation is to use coupled forget and input gates. Instead of separately deciding what to forget and what we should add new information to, we make those decisions together. We only forget when we’re going to input something in its place. We only input new values to the state when we forget something older.</p>
+<div style="width:90%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM3-var-tied.png" alt="" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-64">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-40">A slightly more dramatic variation on the LSTM is the Gated Recurrent Unit, or GRU, introduced by <a href="http://arxiv.org/pdf/1406.1078v3.pdf">Cho, et al. (2014)</a>. It combines the forget and input gates into a single “update gate.” It also merges the cell state and hidden state, and makes some other changes. The resulting model is simpler than standard LSTM models, and has been growing increasingly popular.</p>
+<div style="width:90%; margin-left:auto; margin-right:auto; margin-bottom:8px; margin-top:8px;">
+<img src="img/LSTM3-var-GRU.png" alt="A gated recurrent unit neural network." data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-65">
+</div>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-41">These are only a few of the most notable LSTM variants. There are lots of others, like Depth Gated RNNs by <a href="http://arxiv.org/pdf/1508.03790v2.pdf">Yao, et al. (2015)</a>. There’s also some completely different approach to tackling long-term dependencies, like Clockwork RNNs by <a href="http://arxiv.org/pdf/1402.3511v1.pdf">Koutnik, et al. (2014)</a>.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-42">Which of these variants is best? Do the differences matter? <a href="http://arxiv.org/pdf/1503.04069.pdf">Greff, et al. (2015)</a> do a nice comparison of popular variants, finding that they’re all about the same. <a href="http://jmlr.org/proceedings/papers/v37/jozefowicz15.pdf">Jozefowicz, et al. (2015)</a> tested more than ten thousand RNN architectures, finding some that worked better than LSTMs on certain tasks.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-43">Earlier, I mentioned the remarkable results people are achieving with RNNs. Essentially all of these are achieved using LSTMs. They really work a lot better for most tasks!</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-44">Written down as a set of equations, LSTMs look pretty intimidating. Hopefully, walking through them step by step in this essay has made them a bit more approachable.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-45">LSTMs were a big step in what we can accomplish with RNNs. It’s natural to wonder: is there another big step? A common opinion among researchers is: “Yes! There is a next step and it’s attention!” The idea is to let every step of an RNN pick information to look at from some larger collection of information. For example, if you are using an RNN to create a caption describing an image, it might pick a part of the image to look at for every word it outputs. In fact, <a href="http://arxiv.org/pdf/1502.03044v2.pdf">Xu, <em>et al.</em> (2015)</a> do exactly this – it might be a fun starting point if you want to explore attention! There’s been a number of really exciting results using attention, and it seems like a lot more are around the corner…</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-46">Attention isn’t the only exciting thread in RNN research. For example, Grid LSTMs by <a href="http://arxiv.org/pdf/1507.01526v1.pdf">Kalchbrenner, <em>et al.</em> (2015)</a> seem extremely promising. Work using RNNs in generative models – such as <a href="http://arxiv.org/pdf/1502.04623.pdf">Gregor, <em>et al.</em> (2015)</a>, <a href="http://arxiv.org/pdf/1506.02216v3.pdf">Chung, <em>et al.</em> (2015)</a>, or <a href="http://arxiv.org/pdf/1411.7610v3.pdf">Bayer &amp; Osendorfer (2015)</a>  – also seems very interesting. The last few years have been an exciting time for recurrent neural networks, and the coming ones promise to only be more so!</p>
+<h2 id="acknowledgments">Acknowledgments</h2>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-47">I’m grateful to a number of people for helping me better understand LSTMs, commenting on the visualizations, and providing feedback on this post.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-48">I’m very grateful to my colleagues at Google for their helpful feedback, especially <a href="http://research.google.com/pubs/OriolVinyals.html">Oriol Vinyals</a>, <a href="http://research.google.com/pubs/GregCorrado.html">Greg Corrado</a>, <a href="http://research.google.com/pubs/JonathonShlens.html">Jon Shlens</a>, <a href="http://people.cs.umass.edu/~luke/">Luke Vilnis</a>, and <a href="http://www.cs.toronto.edu/~ilya/">Ilya Sutskever</a>. I’m also thankful to many other friends and colleagues for taking the time to help me, including <a href="https://www.linkedin.com/pub/dario-amodei/4/493/393">Dario Amodei</a>, and <a href="http://cs.stanford.edu/~jsteinhardt/">Jacob Steinhardt</a>. I’m especially thankful to <a href="http://www.kyunghyuncho.me/">Kyunghyun Cho</a> for extremely thoughtful correspondence about my diagrams.</p>
+<p data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-49">Before this post, I practiced explaining LSTMs during two seminar series I taught on neural networks. Thanks to everyone who participated in those for their patience with me, and for their feedback.</p>
+
+<section class="footnotes">
+<hr>
+<ol>
+<li id="fn1"><p>In addition to the original authors, a lot of people contributed to the modern LSTM. A non-comprehensive list is: Felix Gers, Fred Cummins, Santiago Fernandez, Justin Bayer, Daan Wierstra, Julian Togelius, Faustino Gomez, Matteo Gagliolo, and <a href="https://scholar.google.com/citations?user=DaFHynwAAAAJ&amp;hl=en">Alex Graves</a>.<a href="#fnref1">↩</a></p></li>
+</ol>
+</section>
+
+<style>
+.post{width:160px;min-height:210px;margin-bottom:15px;margin-left:5px;margin-right:5px;float:left;border:2px solid black;background-color:white;border-radius:5px}
+.post h3{margin:5px;font-size:65%;text-align:center}
+.post h4{margin:0px;font-size:50%;text-align:center}
+.post img{margin:0px;padding:2px;margin-bottom:10px;width:100%;height:155px}
+</style>
+
+
+<section>
+<hr>
+<h4>More Posts</h4>
+
+<a href="http://distill.pub/2016/augmented-rnns/">
+<div class="post">
+<img style="width:90%; height: 90%; margin-left: 5%; margin-top: 12%; margin-bottom: 12%;" src="../../images/post-covers/attention.png" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-66">
+<h3 style="margin-top:0px;">Attention and Augmented Recurrent Neural Networks</h3>
+<h4 style="margin-top:10px;"><i>On Distill</i></h4>
+</div>
+</a>
+
+<a href="../../posts/2014-07-Conv-Nets-Modular/">
+<div class="post">
+<img src="../../posts/2014-07-Conv-Nets-Modular/img/fig.png" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-67">
+<h3>Conv Nets</h3> <h4>A Modular Perspective</h4>
+</div>
+</a>
+
+<a href="../../posts/2014-03-NN-Manifolds-Topology/">
+<div class="post">
+<img src="../../images/post-covers/topology.png" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-68">
+<h3>Neural Networks, Manifolds, and Topology</h3>
+</div>
+</a>
+
+<a href="../../posts/2014-07-NLP-RNNs-Representations/">
+<div class="post">
+<img src="../../posts/2014-07-NLP-RNNs-Representations/img/Mikolov-GenderVecs.png" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-69">
+<h3>Deep Learning, NLP, and Representations</h3>
+</div>
+</a>
+
+<!--
+<a href="../../posts/2015-02-DataList-Illustrated/">
+<div class="post">
+<img src="../../images/post-covers/DataList.png">
+<h3>Data.List Recursion Illustrated</h3>
+</div>
+</a>
+-->
+
+<!--
+
+
+<a href="../../posts/2015-08-Understanding-LSTMs/">
+<div class="post">
+<img src="../../images/post-covers/lstm.png">
+<h3>Understanding LSTM Networks</h3>
+</div>
+</a>
+
+<a href="../../posts/2014-10-Visualizing-MNIST/">
+<div class="post">
+<img src="../../posts/2014-10-Visualizing-MNIST/img/fig.png">
+<h3>Visualizing MNIST</h3>
+<h4>An Exploration of Dimensionality Reduction</h4>
+</div>
+</a>
+
+<a href="../../posts/2015-01-Visualizing-Representations/">
+<div class="post">
+<img src="../../posts/2015-01-Visualizing-Representations/img/fig.png">
+<h3>Visualizing Representations</h3>
+<h4>Deep Learning and Human Beings</h4>
+</div>
+</a>
+
+
+<a href="../../posts/2014-07-Understanding-Convolutions/">
+<div class="post">
+<img src="../../posts/2014-07-Understanding-Convolutions/img/fig.png">
+<h3>Understanding Convolutions</h3>
+</div>
+</a>
+
+
+<a href="../../posts/2014-12-Groups-Convolution/">
+<div class="post">
+<img src="../../posts/2014-12-Groups-Convolution/img/fig.png">
+<h3>Groups &amp; Group Convolutions</h3>
+</div>
+</a>
+
+<a href="https://christopherolah.wordpress.com/2011/08/08/the-real-3d-mandelbrot-set/">
+<div class="post">
+<img src="../../images/post-covers/mandelbrot.png">
+<h3>The Real 3D Mandelbrot Set</h3>
+<h4 style="margin-top:2px;"><i>On my old blog</i></h4>
+</div>
+</a>
+
+<a href="../../posts/2014-07-FFN-Graphs-Vis/">
+<div class="post">
+<img src="../../posts/2014-07-FFN-Graphs-Vis/img/graph-HP-ships-labeled.png">
+<h3>Fanfiction, Graphs, and PageRank</h3>
+</div>
+</a>
+
+-->
+
+<br style="clear:left;">
+
+</section>
+
+<h2 class="main-disqussion-link-wrp"><a class="main-disqussion-link" href="/posts/2015-08-Understanding-LSTMs/#disqus_thread">80 Comments</a></h2><div id="disqus_thread"></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+<script src="../../comments/inlineDisqussions.js"></script>
+<script src="../../js/disqus.js"></script>
+
+                        </div>
+                        <div class="col-md-4"></div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="footer">
+                <div class="container">
+                    Built by <a href="https://github.com/oinkina">Oinkina</a> with
+                    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+                    using <a href="http://getbootstrap.com/">Bootstrap</a>,
+                    <a href="http://www.mathjax.org/">MathJax</a>,
+                    <a href="http://disqus.com/">Disqus</a>,
+                    <a href="https://github.com/unconed/MathBox.js">MathBox.js</a>,
+                    <a href="http://highlightjs.org/">Highlight.js</a>,
+                    and <a href="http://ignorethecode.net/blog/2010/04/20/footnotes/">Footnotes.js</a>.
+                </div>
+            </div>
+        </div>
+
+    <!-- jQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+    <script src="../../bootstrap/js/bootstrap.min.js"></script>
+
+    <script src="../../highlight/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <script src="../../js/footnotes.js"></script>
+
+    <script src="../../comments/inlineDisqussions.js"></script>
+
+    <noscript>Enable JavaScript for footnotes, Disqus comments, and other cool stuff.</noscript>
+
+    
+
+
+<div id="disqussions_wrapper"><div class="disqussion" style="top: 233.5px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-0#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-0" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-0" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 392.594px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-1#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-1" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-1" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 483.594px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-2#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-2" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-2" data-disqus-position="right">10 Comments</a></div><div class="disqussion" style="top: 601.594px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-3#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-3" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-3" data-disqus-position="right">2 Comments</a></div><div class="disqussion" style="top: 880.625px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-4#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-4" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-4" data-disqus-position="right">1 Comment</a></div><div class="disqussion" style="top: 944.625px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-5#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-5" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-5" data-disqus-position="right">2 Comments</a></div><div class="disqussion" style="top: 1278.21px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-6#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-6" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-6" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 1342.21px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-7#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-7" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-7" data-disqus-position="right">1 Comment</a></div><div class="disqussion" style="top: 1487.21px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-8#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-8" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-8" data-disqus-position="right">3 Comments</a></div><div class="disqussion" style="top: 1684.91px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-9#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-9" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-9" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 1775.91px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-10#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-10" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-10" data-disqus-position="right">1 Comment</a></div><div class="disqussion" style="top: 2164.74px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-11#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-11" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-11" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 2309.74px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-12#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-12" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-12" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 2559.16px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-13#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-13" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-13" data-disqus-position="right">4 Comments</a></div><div class="disqussion" style="top: 2704.16px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-14#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-14" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-14" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 2820.86px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-15#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-15" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-15" data-disqus-position="right">7 Comments</a></div><div class="disqussion" style="top: 2938.86px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-16#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-16" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-16" data-disqus-position="right">1 Comment</a></div><div class="disqussion" style="top: 3029.86px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-17#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-17" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-17" data-disqus-position="right">1 Comment</a></div><div class="disqussion" style="top: 3439.1px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-18#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-18" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-18" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 3822.36px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-19#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-19" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-19" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 4012.17px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-20#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-20" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-20" data-disqus-position="right">450 Comments</a></div><div class="disqussion" style="top: 4209.87px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-21#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-21" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-21" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 4246.87px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-22#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-22" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-22" data-disqus-position="right">2 Comments</a></div><div class="disqussion" style="top: 4547.35px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-23#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-23" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-23" data-disqus-position="right">1 Comment</a></div><div class="disqussion" style="top: 4611.35px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-24#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-24" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-24" data-disqus-position="right">1 Comment</a></div><div class="disqussion" style="top: 4813.35px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-25#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-25" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-25" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 4904.35px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-26#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-26" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-26" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 5021.05px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-27#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-27" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-27" data-disqus-position="right">11 Comments</a></div><div class="disqussion" style="top: 5139.05px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-28#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-28" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-28" data-disqus-position="right">9 Comments</a></div><div class="disqussion" style="top: 5493.53px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-29#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-29" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-29" data-disqus-position="right">8 Comments</a></div><div class="disqussion" style="top: 5611.53px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-30#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-30" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-30" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 5912.02px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-31#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-31" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-31" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 5976.02px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-32#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-32" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-32" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 6067.02px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-33#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-33" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-33" data-disqus-position="right">11 Comments</a></div><div class="disqussion" style="top: 6367.5px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-34#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-34" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-34" data-disqus-position="right">14 Comments</a></div><div class="disqussion" style="top: 6512.5px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-35#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-35" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-35" data-disqus-position="right">7 Comments</a></div><div class="disqussion" style="top: 6948.68px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-36#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-36" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-36" data-disqus-position="right">3 Comments</a></div><div class="disqussion" style="top: 7039.68px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-37#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-37" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-37" data-disqus-position="right">5 Comments</a></div><div class="disqussion" style="top: 7340.16px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-38#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-38" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-38" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 7404.16px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-39#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-39" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-39" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 7758.65px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-40#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-40" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-40" data-disqus-position="right">3 Comments</a></div><div class="disqussion" style="top: 8113.13px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-41#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-41" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-41" data-disqus-position="right">1 Comment</a></div><div class="disqussion" style="top: 8204.13px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-42#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-42" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-42" data-disqus-position="right">450 Comments</a></div><div class="disqussion" style="top: 8401.83px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-43#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-43" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-43" data-disqus-position="right">450 Comments</a></div><div class="disqussion" style="top: 8465.83px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-44#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-44" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-44" data-disqus-position="right">5 Comments</a></div><div class="disqussion" style="top: 8529.83px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-45#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-45" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-45" data-disqus-position="right">450 Comments</a></div><div class="disqussion" style="top: 8755.83px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-46#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-46" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-46" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 8980.52px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-47#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-47" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-47" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 9044.52px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-48#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-48" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-48" data-disqus-position="right">14 Comments</a></div><div class="disqussion" style="top: 9189.52px; left: 820px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-49#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-49" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-49" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 682.594px; left: 489.75px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-50#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-50" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-50" data-disqus-position="right">10 Comments</a></div><div class="disqussion" style="top: 1079.62px; left: 707.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-51#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-51" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-51" data-disqus-position="right">18 Comments</a></div><div class="disqussion" style="top: 1964.91px; left: 632.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-52#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-52" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-52" data-disqus-position="right">6 Comments</a></div><div class="disqussion" style="top: 2363.74px; left: 689.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-53#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-53" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-53" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 3135.86px; left: 782.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-54#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-54" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-54" data-disqus-position="right">6 Comments</a></div><div class="disqussion" style="top: 3518.1px; left: 782.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-55#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-55" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-55" data-disqus-position="right">12 Comments</a></div><div class="disqussion" style="top: 3896.36px; left: 707.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-56#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-56" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-56" data-disqus-position="right">450 Comments</a></div><div class="disqussion" style="top: 4320.87px; left: 782.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-57#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-57" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-57" data-disqus-position="right">8 Comments</a></div><div class="disqussion" style="top: 4685.35px; left: 490px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-58#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-58" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-58" data-disqus-position="right">5 Comments</a></div><div class="disqussion" style="top: 5267.05px; left: 782.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-59#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-59" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-59" data-disqus-position="right">18 Comments</a></div><div class="disqussion" style="top: 5685.53px; left: 782.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-60#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-60" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-60" data-disqus-position="right">14 Comments</a></div><div class="disqussion" style="top: 6141.02px; left: 782.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-61#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-61" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-61" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 6640.5px; left: 782.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-62#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-62" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-62" data-disqus-position="right">5 Comments</a></div><div class="disqussion" style="top: 7113.68px; left: 782.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-63#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-63" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-63" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 7532.16px; left: 782.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-64#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-64" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-64" data-disqus-position="right">1 Comment</a></div><div class="disqussion" style="top: 7886.65px; left: 782.5px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-65#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-65" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-65" data-disqus-position="right">9 Comments</a></div><div class="disqussion" style="top: 9494.04px; left: 224.797px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-66#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-66" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-66" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 9475.32px; left: 403px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-67#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-67" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-67" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 9475.32px; left: 573px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-68#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-68" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-68" data-disqus-position="right">0 Comments</a></div><div class="disqussion" style="top: 9475.32px; left: 743px;"><a class="disqussion-link" href="/posts/2015-08-Understanding-LSTMs/disqussion-69#disqus_thread" data-disqus-identifier="/posts/2015-08-Understanding-LSTMs/disqussion-69" data-disqus-url="https://colah.github.io/posts/2015-08-Understanding-LSTMs/disqussion-69" data-disqus-position="right">1 Comment</a></div></div></body></html>
