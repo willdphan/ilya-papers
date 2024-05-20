@@ -32,3 +32,8 @@ papers/
 # ignore .DS_Store file
 .DS_Store
 
+# ignore pycache
+__pycache__/
+
+# ignore chroma_db
+chroma_db/
