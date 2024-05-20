@@ -20,7 +20,7 @@ urls = [
     "https://scottaaronson.blog/?p=762",
     "https://karpathy.github.io/2015/05/21/rnn-effectiveness/",
     "https://colah.github.io/posts/2015-08-Understanding-LSTMs/",
-    "https://cs231n.github.io/",
+    # "https://cs231n.github.io/",
     "https://arxiv.org/pdf/1409.2329.pdf",
     "https://www.cs.toronto.edu/~hinton/absps/colt93.pdf",
     "https://arxiv.org/pdf/1506.03134.pdf",
@@ -73,7 +73,7 @@ papers = [
     "papers/intro_minimum_description_length_principle.pdf",
     "papers/machine_super_intelligence.pdf",
     "papers/kolmogorov_complexity.pdf",
-    "papers/cnns_for_visual_recognition.html",
+    # "papers/cnns_for_visual_recognition.html",
 ]
 
 
