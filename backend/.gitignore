@@ -29,3 +29,6 @@ papers/
 # ignore vscode directory
 .vscode/
 
+# ignore .DS_Store file
+.DS_Store
+
