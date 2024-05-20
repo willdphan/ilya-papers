@@ -18,8 +18,9 @@ from pydantic import BaseModel
 import subprocess
 import sys
 from utils import papers, urls
-
+import requests
 from helper import get_openai_api_key
+from playwright.async_api import async_playwright
 
 OPENAI_API_KEY = get_openai_api_key()
 print(OPENAI_API_KEY)
@@ -40,18 +41,67 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+os.makedirs("papers", exist_ok=True)
+
+
+# Function to download and parse HTML content using Playwright
+async def download_and_parse_html(url, paper):
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.goto(url)
+        content = await page.content()
+        await browser.close()
+
+    with open(paper, "w", encoding="utf-8") as file:
+        file.write(content)
+
+    return content
+
+
+async def download_papers(urls, papers):
+    for url, paper in zip(urls, papers):
+        file_path = Path(paper)
+        if not file_path.exists():
+            print(f"Downloading {url} to {paper}")
+            response = requests.get(url, verify=False)
+            # if link doesn't end in .pdf, then it's an html page
+            if not url.endswith(".pdf"):
+                # download and parse html page
+                await download_and_parse_html(url, paper)
+            else:
+                with open(paper, "wb") as file:
+                    file.write(response.content)
+
+
 # Load the papers and create the tools (modify this based on your existing code)
 paper_to_tools_dict = {}
 for paper in papers:
+    print(f"Getting tools for paper: {paper}")
+    if not os.path.exists(paper):
+        print(f"Paper {paper} not found. Downloading...")
+        download_papers([url for url, p in zip(urls, papers) if p == paper], [paper])
     vector_tool, summary_tool = get_doc_tools(paper, Path(paper).stem)
     paper_to_tools_dict[paper] = [vector_tool, summary_tool]
 
-# If there are no papers in the paper_to_tools_dict, then there are no papers in the papers list
-if not paper_to_tools_dict:
-    print("No papers found in the papers list")
-    for url, paper in zip(urls, papers):
-        subprocess.run(["wget", url, "-O", paper], check=True)
-    sys.exit()
+# Load the papers and create the tools (modify this based on your existing code)
+# paper_to_tools_dict = {}
+# for paper in papers:
+#     print("getting tools for ", paper)
+#     vector_tool, summary_tool = get_doc_tools(paper, Path(paper).stem)
+#     paper_to_tools_dict[paper] = [vector_tool, summary_tool]
+#     if not paper_to_tools_dict:
+#         print("No papers found in the papers list")
+#         for url, paper in zip(urls, papers):
+#             subprocess.run(["wget", url, "-O", paper], check=True)
+#         sys.exit()
+
+# # If there are no papers in the paper_to_tools_dict, then there are no papers in the papers list
+# if not paper_to_tools_dict:
+#     print("No papers found in the papers list")
+#     for url, paper in zip(urls, papers):
+#         subprocess.run(["wget", url, "-O", paper], check=True)
+#     sys.exit()
 
 
 all_tools = [t for paper in papers for t in paper_to_tools_dict[paper]]
