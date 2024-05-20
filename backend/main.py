@@ -15,6 +15,9 @@ import uvicorn
 import asyncio
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import subprocess
+import sys
+from utils import papers, urls
 
 from helper import get_openai_api_key
 
@@ -42,6 +45,14 @@ paper_to_tools_dict = {}
 for paper in papers:
     vector_tool, summary_tool = get_doc_tools(paper, Path(paper).stem)
     paper_to_tools_dict[paper] = [vector_tool, summary_tool]
+
+# If there are no papers in the paper_to_tools_dict, then there are no papers in the papers list
+if not paper_to_tools_dict:
+    print("No papers found in the papers list")
+    for url, paper in zip(urls, papers):
+        subprocess.run(["wget", url, "-O", paper], check=True)
+    sys.exit()
+
 
 all_tools = [t for paper in papers for t in paper_to_tools_dict[paper]]
 
