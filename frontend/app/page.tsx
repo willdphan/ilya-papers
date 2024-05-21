@@ -127,18 +127,17 @@ const scrollToNextSection = () => {
 </div>
  
   <div className="hidden flex-grow sm:flex justify-center items-center space-x-4 font-[300]">
-  <Link href="/about">
+  {/* <Link href="/about"> */}
     <button className="text-[#E5E5E5] hover:text-[#1871E3] mr-8 no-icon text-xl ">
       About
     
     </button>
-  </Link>
-  <Link href="/contact">
+  {/* </Link> */}
+  <a href="mailto:willdphan@gmail.com">
     <button className="text-[#E5E5E5] hover:text-[#1871E3] no-icon text-xl">
       Contact
-    
     </button>
-  </Link>
+  </a>
 </div>
 
 
@@ -357,7 +356,7 @@ const scrollToNextSection = () => {
                 setInput(example);
                 inputRef.current?.focus();
               }}
-              className=" focus:outline-none mt-5"
+              className="  mt-5"
             >
               {example}
             </motion.button>
