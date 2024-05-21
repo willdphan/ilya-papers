@@ -116,7 +116,7 @@ const scrollToNextSection = () => {
 
 <div className='absolute top-8 pl-8 flex items-center justify-between w-full'>
 <div className="fixed top-8 left-8 z-50">
-  <button className='no-icon' onClick={() => window.location.reload()}>
+  <button className='no-icon' onClick={() => document.getElementById('first-section')?.scrollIntoView({ behavior: 'smooth' })}>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1871E3" width="30" height="30" className="default-icon">
       <path d="M18 7H22V9H16V3H18V7ZM8 9H2V7H6V3H8V9ZM18 17V21H16V15H22V17H18ZM8 15V21H6V17H2V15H8Z"></path>
     </svg>
@@ -144,7 +144,7 @@ const scrollToNextSection = () => {
 </div>
 
 {/* VIDEO */}
-<div className='min-h-screen px-8 pt-24 bg-[#0A0A0A] space-y-10 font-Sans '>
+<div id="first-section" className='min-h-screen px-8 pt-24 bg-[#0A0A0A] space-y-10 font-Sans '>
   <div className='flex flex-col items-center'>
   <motion.div
           initial={{ opacity: 0 }}
@@ -315,12 +315,12 @@ const scrollToNextSection = () => {
   This is an open-source AI chat interface that uses OpenAI Functions and Vercel AI SDK to interact with Ilya Sutskevar's list of research recommendations with natural language.
 </motion.h3>
 
-<div className="flex flex-row sm:flex-row sm:space-x-2 space-x-1 mt-4 font-[300] items-center sm:items-start">
+<motion.div variants={childVariants} className="flex flex-row sm:flex-row sm:space-x-2 space-x-1 mt-4 font-[300] items-center sm:items-start">
   <div className="text-grey mb-2 sm:mb-0 mr-2 sm:mr-0">Explore</div>
   <div className="px-2 mb-2 border border-[#1871E3] text-[#1871E3] rounded-full hover:bg-[#1871E3] hover:text-white">DL</div>
   <div className="px-2 mb-2 border border-[#1871E3] text-[#1871E3] rounded-full hover:bg-[#1871E3] hover:text-white">Transformers</div>
   <div className="px-2 mb-2 border border-[#1871E3] text-[#1871E3] rounded-full hover:bg-[#1871E3] hover:text-white">RNNs</div>
-</div>
+</motion.div>
 
 
 
