@@ -415,7 +415,7 @@ const scrollToNextSection = () => {
         <p className="text-center text-xs text-gray-400 absolute bottom-3">
           Built with{" "} love from{" "}
           <a
-            href="https://platform.openai.com/docs/guides/gpt/function-calling"
+            href="https://x.com/alexdphan"
             target="_blank"
             rel="noopener noreferrer"
             className="transition-colors hover:text-black"
@@ -424,7 +424,7 @@ const scrollToNextSection = () => {
           </a>{" "}
           and{" "}
           <a
-            href="https://sdk.vercel.ai/docs"
+            href="https://x.com/willdphan"
             target="_blank"
             rel="noopener noreferrer"
             className="transition-colors hover:text-black"
