@@ -1,0 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,800;0,900;0,1000;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900;1,1000&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+h1 {
+    @apply font-Sans text-sm font-[350]  ;
+    font-size: 27px;
+    line-height: 32px;
+}
+
+h3 {
+    @apply font-Sans text-sm font-[300] text-[#919193] ;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+p {
+    @apply font-Sans text-sm font-[300] text-[#919193] ;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.textarea-custom  {
+    @apply font-Sans text-sm font-[300] text-[#919193] ;
+    font-size: 16px;
+    line-height: 24px;
+}
+
+input::placeholder, textarea::placeholder {
+    @apply font-Sans text-sm font-[300] text-[#919193] ;
+    font-size: 16px; /* Same as <p> tag */
+    line-height: 24px; /* Same as <p> tag */
+}
+
+button {
+  @apply rounded-full font-Sans font-[300] py-2 text-left text-[#1871E3] transition-all duration-75 hover:border-black hover:text-gray-700 active:bg-gray-50;
+  font-size: 16px;
+  position: relative; 
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+button::before {
+  content: "";
+  position: absolute;
+  left: -30px; /* Position the icon outside the button on the left */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px; /* Width of the SVG icon */
+  height: 15px; /* Height of the SVG icon */
+  background-image: url("data:image/svg+xml,%3csvg stroke-width='2' id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3e%3cdefs%3e%3cstyle%3e.cls-zs13fqo78bh100s320feaon-1%7bfill:none%3bstroke:%231871E3%3bstroke-miterlimit:10%3b%3b%7d%3c/style%3e%3c/defs%3e%3cline class='cls-zs13fqo78bh100s320feaon-1' x1='21.5' y1='12' x2='0.5' y2='12'/%3e%3cpolyline class='cls-zs13fqo78bh100s320feaon-1' points='13.86 4.36 21.5 12 13.86 19.64'/%3e%3c/svg%3e");
+  background-size: cover; /* Ensure the SVG covers the area of the pseudo-element */
+  opacity: 0; /* Start as invisible */
+  transition: opacity 0.3s ease; /* Smooth transition for opacity */
+}
+
+button:hover::before {
+  opacity: 1; /* Make the icon visible on hover */
+}
+
+/* Media query for small screens */
+@media (max-width: 768px) {
+  button::before {
+      display: none; /* Hide the SVG icon on small screens */
+  }
+}
+
+/* NO BUTTON STYLING HERE */
+
+button.no-icon::before {
+  @apply text-[#1871E3];
+  display: none !important; /* Force this rule to take precedence */
+  opacity: 0 !important; /* Ensure it starts with no opacity */
+  transition: none !important; /* Forcefully remove any transitions */
+  background-color: transparent;
+}
+
+button.no-icon:active::before {
+  background-color: transparent !important; /* Ensure background remains transparent on click */
+}
+
+
+/* no icon show on hover */
+.no-hover-icon:hover::before {
+    opacity: 0; /* Keep the icon invisible on hover */
+}
+
+/* icon white on hover */
+.hover-icon-white:hover img {
+    filter: brightness(0) invert(1);
+  }
+
+  /* Logo: Target the anchor tag on hover and then the SVG within it */
+a:hover svg {
+    fill: white; /* Change the fill color to white */
+  }
+
+/* globals.css */
+
+a {
+    color: #919193; /* Set your desired color */
+    text-decoration: none; /* Optional: removes underline from links */
+  }
+  
+  /* Ensure links are visible when hovered or focused */
+  a:hover,
+  a:focus {
+    color: black; /* Darker blue on hover for better visibility */
+    text-decoration: underline; /* Optional: adds underline on hover */
+  }
+
+/* globals.css */
+.prose a {
+    @apply font-Sans font-[200];
+  color: #919193; /* Example color */
+  text-decoration: underline;
+  text-decoration-thickness: 1px; /* Adjust the thickness of the underline */
+  text-underline-offset: 1px; /* Adjust the position of the underline */
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.prose a:hover,
+.prose a:focus {
+  color: black;
+  text-decoration: underline;
+}
+
+.hover-icon {
+    display: none;
+  }
+  
+  div:hover .default-icon {
+    display: none;
+    background-color: #1871E3;
+  }
+  
+  div:hover .hover-icon {
+    display: block;
+    fill: #1871E3; 
+ 
+  }
+
+  .lock-scroll {
+    overflow: hidden; /* Prevent scrolling */
+    height: 100vh; /* Limit height to the viewport */
+  }
+
+/* Add this to your globals.css */
+
+/* Add this to your globals.css */
+.chat-history {
+  max-height: 85vh; /* Adjust based on your design needs */
+  overflow-y: auto; /* Enables vertical scrolling */
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For Internet Explorer and Edge */
+
+  /* For Chrome, Safari, and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
