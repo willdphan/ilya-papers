@@ -32,7 +32,7 @@ dnspython==2.6.1
 email_validator==2.1.1
 executing==2.0.1
 fastapi==0.110.3
-fastapi-cli==0.0.3
+# fastapi-cli==0.0.3
 filelock==3.14.0
 flatbuffers==24.3.25
 frozenlist==1.4.1
@@ -173,7 +173,7 @@ tornado==6.4
 tqdm==4.66.4
 traitlets==5.14.3
 transformers==4.41.0
-typer==0.9.4
+typer>=0.9.4,<1.0.0
 types-requests==2.31.0.20240406
 typing-inspect==0.9.0
 typing_extensions==4.11.0
