@@ -15,10 +15,11 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
 
+// eslint-disable-next-line react/no-unescaped-entities
 const examples = [
-  "In Ilya's list, what is the most cited paper?",
-  "Summarize the 'Attention is All You Need' paper.",
-  "Provide list of Ilya's recommended research papers.",
+  "In Ilya's list, what is the most cited paper?", // eslint-disable-line react/no-unescaped-entities
+  "Summarize the 'Attention is All You Need' paper.", // eslint-disable-line react/no-unescaped-entities
+  "Provide list of Ilya's recommended research papers.", // eslint-disable-line react/no-unescaped-entities
 ];
 
 
