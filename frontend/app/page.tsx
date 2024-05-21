@@ -1,12 +1,11 @@
 "use client";
 
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
-import { useRef } from "react";
+import React, { useState, useRef } from 'react';
 // import { useChat } from "ai/react";
 // import va from "@vercel/analytics";
 import clsx from "clsx";
-import {  LoadingCircle } from "./icons";
+import { LoadingCircle } from "./icons";
 import Textarea from "react-textarea-autosize";
 import { toast } from "sonner";
 import './globals.css';
