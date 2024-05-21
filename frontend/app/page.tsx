@@ -1,27 +1,26 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+/* eslint-disable no-unused-vars */
+import React, { useState } from 'react';
 import { useRef } from "react";
-import { useChat } from "ai/react";
-import va from "@vercel/analytics";
+// import { useChat } from "ai/react";
+// import va from "@vercel/analytics";
 import clsx from "clsx";
-import { VercelIcon, GithubIcon, LoadingCircle, SendIcon } from "./icons";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import {  LoadingCircle } from "./icons";
 import Textarea from "react-textarea-autosize";
 import { toast } from "sonner";
 import './globals.css';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+/* eslint-enable no-unused-vars */
 
-
-// eslint-disable-next-line react/no-unescaped-entities
+/* eslint-disable react/no-unescaped-entities */
 const examples = [
-  "In Ilya's list, what is the most cited paper?", // eslint-disable-line react/no-unescaped-entities
+  "What is Ilya's most cited paper?", // eslint-disable-line react/no-unescaped-entities
   "Summarize the 'Attention is All You Need' paper.", // eslint-disable-line react/no-unescaped-entities
   "Provide list of Ilya's recommended research papers.", // eslint-disable-line react/no-unescaped-entities
 ];
-
+/* eslint-enable react/no-unescaped-entities */
 
 export default function Chat() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -384,7 +383,7 @@ const scrollToNextSection = () => {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 formRef.current?.requestSubmit();
-                e.preventDefault();
+                e.preventDefault(); // eslint-disable-line no-unused-vars
               }
             }}
             spellCheck={false}
