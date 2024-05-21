@@ -186,7 +186,7 @@ const scrollToNextSection = () => {
     style={{ lineHeight: '1.2' }}
     className='w-full h-full flex justify-start items-end text-4xl sm:text-4xl md:text-4xl lg:text-5xl xl:text-6xl font-Sans text-[#E5E5E5] flex-wrap font-[400]'
   >
-    {"An AI inspired by Ilya Sutskevars' paper recommendations.".split(' ').map((word, index) => (
+    {"An interface inspired by Ilya Sutskevars'  recommendations.".split(' ').map((word, index) => (
       <motion.span
         key={index}
         initial={{ opacity: 0 }}
@@ -312,7 +312,7 @@ const scrollToNextSection = () => {
           Ilya's Papers
         </motion.h1>
         <motion.h3 variants={childVariants} className='max-w-2xl'>
-  This is an open-source AI chatbot that uses OpenAI Functions and Vercel AI SDK to interact with the Hacker News API with natural language.
+  This is an open-source AI chat interface that uses OpenAI Functions and Vercel AI SDK to interact with Ilya Sutskevar's list of research recommendations with natural language.
 </motion.h3>
 
 <div className="flex flex-row sm:flex-row sm:space-x-2 space-x-1 mt-4 font-[300] items-center sm:items-start">
