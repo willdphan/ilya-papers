@@ -59,17 +59,19 @@ async def download_and_parse_html(url, paper):
     return content
 
 
-async def download_papers(urls, papers):
+def download_papers(urls, papers):
     for url, paper in zip(urls, papers):
         file_path = Path(paper)
+        print(file_path)
         if not file_path.exists():
             print(f"Downloading {url} to {paper}")
             response = requests.get(url, verify=False)
-            # if link doesn't end in .pdf, then it's an html page
             if not url.endswith(".pdf"):
-                # download and parse html page
-                await download_and_parse_html(url, paper)
+                # Download and save HTML page
+                with open(paper, "w", encoding="utf-8") as file:
+                    file.write(response.text)
             else:
+                # Download and save PDF file
                 with open(paper, "wb") as file:
                     file.write(response.content)
 
