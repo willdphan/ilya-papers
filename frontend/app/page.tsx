@@ -16,9 +16,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 
 const examples = [
-  "Give me a list of Hacker news articles.",
-  "Summarize the comments in the top hacker news story.",
-  "What is the top story on Hacker News right now?",
+  "In Ilya's list, what is the most cited paper?",
+  "Summarize the 'Attention is All You Need' paper.",
+  "Provide list of Ilya's recommended research papers.",
 ];
 
 
@@ -26,23 +26,47 @@ export default function Chat() {
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const { messages, input, setInput, handleSubmit, isLoading } = useChat({
-    onResponse: (response) => {
-      if (response.status === 429) {
-        toast.error("You have reached your request limit for the day.");
-        va.track("Rate limited");
-        return;
-      } else {
-        va.track("Chat initiated");
-      }
-    },
-    onError: (error) => {
-      va.track("Chat errored", {
-        input,
-        error: error.message,
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  type Message = {
+    role: "user" | "assistant";
+    content: string;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim() === "") return;
+
+    setIsLoading(true);
+    const userMessage: Message = { role: "user", content: input };
+    setMessages([...messages, userMessage]);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ input }),
       });
-    },
-  });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const botMessage: Message = { role: "assistant", content: data.response };
+      setMessages([...messages, userMessage, botMessage]);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      toast.error("Error fetching data from local server");
+    } finally {
+      setIsLoading(false);
+      setInput("");
+    }
+  };
 
   const disabled = isLoading || input.length === 0;
 
@@ -73,6 +97,11 @@ const scrollToNextSection = () => {
   nextSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
 };
 
+
+
+
+
+
   return (
     <main >
     {/* <div className="min-h-screen w-screen bg-cover bg-center" style={{ backgroundImage: `url('/ilya.jpeg')` }}>
@@ -86,24 +115,33 @@ const scrollToNextSection = () => {
 
 
 <div className='absolute top-8 pl-8 flex items-center justify-between w-full'>
-  <div>
+<div className="fixed top-8 left-8 z-50">
+  <button className='no-icon' onClick={() => window.location.reload()}>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1871E3" width="30" height="30" className="default-icon">
       <path d="M18 7H22V9H16V3H18V7ZM8 9H2V7H6V3H8V9ZM18 17V21H16V15H22V17H18ZM8 15V21H6V17H2V15H8Z"></path>
     </svg>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1871E3" width="30" height="30" className="hover-icon hidden">
       <path d="M18 7H22V9H16V3H18V7ZM8 9H2V7H6V3H8V9ZM18 17V21H16V15H22V17H18ZM8 15V21H6V17H2V15H8Z"></path>
     </svg>
-  </div>
+  </button>
+</div>
  
-  <div className="hidden flex-grow sm:flex justify-center items-center space-x-4 text-xl font-[300] space-x-14">
-   
+  <div className="hidden flex-grow sm:flex justify-center items-center space-x-4 font-[300]">
   <Link href="/about">
-    <div className="text-[#E5E5E5] hover:text-[#1871E3]">About</div>
+    <button className="text-[#E5E5E5] hover:text-[#1871E3] mr-8 no-icon text-xl ">
+      About
+    
+    </button>
   </Link>
   <Link href="/contact">
-    <div className="text-[#E5E5E5] hover:text-[#1871E3]">Contact</div>
+    <button className="text-[#E5E5E5] hover:text-[#1871E3] no-icon text-xl">
+      Contact
+    
+    </button>
   </Link>
-  </div>
+</div>
+
+
 </div>
 
 {/* VIDEO */}
@@ -131,7 +169,7 @@ const scrollToNextSection = () => {
           transition={{ duration: 2 }}
         >
           <button 
-            className="flex items-start text-xl text-[#1871E3] no-icon hover:text-white"
+            className="flex items-start text-xl text-[#1871E3] no-icon "
             onClick={scrollToNextSection}  // Add the onClick handler here
           >
             Check it out
@@ -215,71 +253,79 @@ const scrollToNextSection = () => {
           {/* <GithubIcon /> */}
         </a>
       </div>
-      
+
+
+
+
       {messages.length > 0 ? (
-  <div className="chat-history"> {/* Add the chat-history class here */}
+  <div className="chat-history">
     {messages.map((message, i) => (
-      <div
-        key={i}
-        className={clsx(
-          "flex w-full items-center justify-center py-2",
-          message.role === "user" ? "bg-white" : "",
-        )}
-      >
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex w-full max-w-screen-sm items-start space-x-4 px-5 sm:px-0 mt-5"
-        >
-          <div
-                  className={clsx(
-                    "p-1.5 text-white",
-                    message.role === "assistant" ? "bg-[#1871E3]" : "",
-                  )}
-                >
-                {message.role === "user" ? (
-                 
-                 <svg xmlns="http://www.w3.org/2000/svg" className="" viewBox="0 0 24 24" fill="#1871E3" width="25" height="25" ><path d="M11.9995 2C12.5518 2 12.9995 2.44772 12.9995 3V6C12.9995 6.55228 12.5518 7 11.9995 7C11.4472 7 10.9995 6.55228 10.9995 6V3C10.9995 2.44772 11.4472 2 11.9995 2ZM11.9995 17C12.5518 17 12.9995 17.4477 12.9995 18V21C12.9995 21.5523 12.5518 22 11.9995 22C11.4472 22 10.9995 21.5523 10.9995 21V18C10.9995 17.4477 11.4472 17 11.9995 17ZM20.6597 7C20.9359 7.47829 20.772 8.08988 20.2937 8.36602L17.6956 9.86602C17.2173 10.1422 16.6057 9.97829 16.3296 9.5C16.0535 9.02171 16.2173 8.41012 16.6956 8.13398L19.2937 6.63397C19.772 6.35783 20.3836 6.52171 20.6597 7ZM7.66935 14.5C7.94549 14.9783 7.78161 15.5899 7.30332 15.866L4.70525 17.366C4.22695 17.6422 3.61536 17.4783 3.33922 17C3.06308 16.5217 3.22695 15.9101 3.70525 15.634L6.30332 14.134C6.78161 13.8578 7.3932 14.0217 7.66935 14.5ZM20.6597 17C20.3836 17.4783 19.772 17.6422 19.2937 17.366L16.6956 15.866C16.2173 15.5899 16.0535 14.9783 16.3296 14.5C16.6057 14.0217 17.2173 13.8578 17.6956 14.134L20.2937 15.634C20.772 15.9101 20.9359 16.5217 20.6597 17ZM7.66935 9.5C7.3932 9.97829 6.78161 10.1422 6.30332 9.86602L3.70525 8.36602C3.22695 8.08988 3.06308 7.47829 3.33922 7C3.61536 6.52171 4.22695 6.35783 4.70525 6.63397L7.30332 8.13398C7.78161 8.41012 7.94549 9.02171 7.66935 9.5Z"></path></svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="25" height="25"><path d="M18 7H22V9H16V3H18V7ZM8 9H2V7H6V3H8V9ZM18 17V21H16V15H22V17H18ZM8 15V21H6V17H2V15H8Z"></path></svg>
-                )}
-          </div>
-          <motion.div
-            className="prose mt-2 w-full break-words prose-p:leading-relaxed px-10 font-[300] text-[#919193]"
-          >
-            {message.content.split(' ').map((word, index) => (
-              <motion.span
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                {word + ' '}
-              </motion.span>
-            ))}
-          </motion.div>
+      <div key={i} className={clsx("flex w-full items-center justify-center py-2 ", message.role === "user" ? "bg-white" : "")}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="flex w-full max-w-screen-md items-start space-x-4 px-8 sm:px-0 mt-5">
+          {message.role === "assistant" && (
+            <div className="p-1.5 text-white bg-[#1871E3]">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="25" height="25">
+                <path d="M18 7H22V9H16V3H18V7ZM8 9H2V7H6V3H8V9ZM18 17V21H16V15H22V17H18ZM8 15V21H6V17H2V15H8Z"></path>
+              </svg>
+            </div>
+          )}
+          {message.role === "assistant" && (
+            <motion.div className="prose mt-2 w-full break-words prose-p:leading-relaxed px-5 font-[300] text-[#919193]">
+              {message.content.replace(/^assistant:\s*/, '').split(' ').map((word, index) => (
+                <motion.span key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+                  {word + ' '}
+                </motion.span>
+              ))}
+            </motion.div>
+          )}
+          {message.role === "user" && (
+            <div className="flex items-center ml-auto">
+              <motion.div className="prose mt-2 w-full break-words prose-p:leading-relaxed px-5 font-[300] text-[#919193] text-right">
+                {message.content.replace(/^user:\s*/, '').split(' ').map((word, index) => (
+                  <motion.span key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+                    {word + ' '}
+                  </motion.span>
+                ))}
+              </motion.div>
+              <div className="p-1.5 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" className="" viewBox="0 0 24 24" fill="#1871E3" width="25" height="25">
+                  <path d="M11.9995 2C12.5518 2 12.9995 2.44772 12.9995 3V6C12.9995 6.55228 12.5518 7 11.9995 7C11.4472 7 10.9995 6.55228 10.9995 6V3C10.9995 2.44772 11.4472 2 11.9995 2ZM11.9995 17C12.5518 17 12.9995 17.4477 12.9995 18V21C12.9995 21.5523 12.5518 22 11.9995 22C11.4472 22 10.9995 21.5523 10.9995 21V18C10.9995 17.4477 11.4472 17 11.9995 17ZM20.6597 7C20.9359 7.47829 20.772 8.08988 20.2937 8.36602L17.6956 9.86602C17.2173 10.1422 16.6057 9.97829 16.3296 9.5C16.0535 9.02171 16.2173 8.41012 16.6956 8.13398L19.2937 6.63397C19.772 6.35783 20.3836 6.52171 20.6597 7ZM7.66935 14.5C7.94549 14.9783 7.78161 15.5899 7.30332 15.866L4.70525 17.366C4.22695 17.6422 3.61536 17.4783 3.33922 17C3.06308 16.5217 3.22695 15.9101 3.70525 15.634L6.30332 14.134C6.78161 13.8578 7.3932 14.0217 7.66935 14.5ZM20.6597 17C20.3836 17.4783 19.772 17.6422 19.2937 17.366L16.6956 15.866C16.2173 15.5899 16.0535 14.9783 16.3296 14.5C16.6057 14.0217 17.2173 13.8578 17.6956 14.134L20.2937 15.634C20.772 15.9101 20.9359 16.5217 20.6597 17ZM7.66935 9.5C7.3932 9.97829 6.78161 10.1422 6.30332 9.86602L3.70525 8.36602C3.22695 8.08988 3.06308 7.47829 3.33922 7C3.61536 6.52171 4.22695 6.35783 4.70525 6.63397L7.30332 8.13398C7.78161 8.41012 7.94549 9.02171 7.66935 9.5Z"></path>
+                </svg>
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
     ))}
   </div>
-) : (
-        <div className="mx-8 mt-0 max-w-screen-md sm:w-full ">
+) : 
+ (
+        <div className="mx-8 mt-0 max-w-screen-md sm:w-full font-Sans">
   <motion.div
   variants={containerVariants}
   initial="hidden"
   animate="visible"
 
-  transition={{ borderColor: { duration: 0.5 } }} // Animate to visible border color
+  transition={{ borderColor: { duration: 2 } }} // Animate to visible border color
   className="flex flex-col space-y-4 sm:p-5 mt-10"
 >
         <motion.h1        variants={childVariants}>
           Ilya's Papers
         </motion.h1>
         <motion.h3 variants={childVariants} className='max-w-2xl'>
-          This is an open-source AI chatbot that uses OpenAI Functions and Vercel AI SDK to interact with the Hacker News API with natural language.
-        </motion.h3>
+  This is an open-source AI chatbot that uses OpenAI Functions and Vercel AI SDK to interact with the Hacker News API with natural language.
+</motion.h3>
+
+<div className="flex flex-row sm:flex-row sm:space-x-2 space-x-1 mt-4 font-[300] items-center sm:items-start">
+  <div className="text-grey mb-2 sm:mb-0 mr-2 sm:mr-0">Explore</div>
+  <div className="px-2 mb-2 border border-[#1871E3] text-[#1871E3] rounded-full hover:bg-[#1871E3] hover:text-white">DL</div>
+  <div className="px-2 mb-2 border border-[#1871E3] text-[#1871E3] rounded-full hover:bg-[#1871E3] hover:text-white">Transformers</div>
+  <div className="px-2 mb-2 border border-[#1871E3] text-[#1871E3] rounded-full hover:bg-[#1871E3] hover:text-white">RNNs</div>
+</div>
+
+
+
+
         <motion.div
   variants={containerVariants}
   initial="hidden"
@@ -298,7 +344,7 @@ const scrollToNextSection = () => {
       position: "absolute",
       top: 0, // Align to the top of the parent
       left: 0, // Start from the left
-      height: "0.5px", // Border thickness
+      height: "1px", // Border thickness
       backgroundColor: "rgba(200, 200, 200, 1)", // Visible border color
     }}
   />
@@ -306,8 +352,7 @@ const scrollToNextSection = () => {
             <motion.button
               key={i}
               variants={childVariants}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.95 }}
+         
               onClick={() => {
                 setInput(example);
                 inputRef.current?.focus();

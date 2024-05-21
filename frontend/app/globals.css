@@ -12,8 +12,8 @@
 @tailwind utilities;
 
 h1 {
-    @apply font-Sans text-sm font-[350]  ;
-    font-size: 27px;
+    @apply font-Sans text-4xl sm:text-4xl md:text-4xl font-[400] mb-2;
+    /* font-size: 27px; */
     line-height: 32px;
 }
 
@@ -41,11 +41,27 @@ input::placeholder, textarea::placeholder {
     line-height: 24px; /* Same as <p> tag */
 }
 
+@keyframes tempBlur {
+  0% {
+    filter: blur(0);
+  }
+  50% {
+    filter: blur(2px);
+  }
+  100% {
+    filter: blur(0);
+  }
+}
+
 button {
-  @apply rounded-full font-Sans font-[300] py-2 text-left text-[#1871E3] transition-all duration-75 hover:border-black hover:text-gray-700 active:bg-gray-50;
+  @apply rounded-full font-Sans font-[300] py-2 text-left text-[#1871E3] transition-all duration-75  ;
   font-size: 16px;
   position: relative; 
-  transition: all 0.3s ease; /* Smooth transition for hover effects */
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  animation: tempBlur 0.5s ease; /* Apply the blur animation */
 }
 
 button::before {
@@ -169,3 +185,4 @@ a {
     display: none;
   }
 }
+
